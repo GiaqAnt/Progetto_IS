@@ -6,6 +6,7 @@ public class UtenteDTO {
 	private String email;
 	private String ruolo;
 	private float mediaPunti;
+	private int taskCompletati;
 	
 	public UtenteDTO(String nome, String cognome, String email, String ruolo) {
 		this.nome =nome;
@@ -13,6 +14,7 @@ public class UtenteDTO {
 		this.email = email;
 		this.ruolo=ruolo;
 		this.mediaPunti=0;
+		this.taskCompletati=0;
 	}
 	
 	public UtenteDTO(String nome, String cognome, String email, String ruolo,float mediaPunti) {
@@ -21,7 +23,18 @@ public class UtenteDTO {
 		this.email = email;
 		this.ruolo=ruolo;
 		this.mediaPunti=mediaPunti;
+		this.taskCompletati=0;
 	}
+	
+	public UtenteDTO(String nome, String cognome, String email, String ruolo,float mediaPunti,int taskCompletati) {
+		this.nome =nome;
+		this.cognome = cognome;
+		this.email = email;
+		this.ruolo=ruolo;
+		this.mediaPunti=0;
+		this.taskCompletati=taskCompletati;
+	}
+	
 
 	public String getNome() {
 		return nome;
@@ -57,6 +70,14 @@ public class UtenteDTO {
 
 	
 	
+	public int getTaskCompletati() {
+		return taskCompletati;
+	}
+
+	public void setTaskCompletati(int taskCompletati) {
+		this.taskCompletati = taskCompletati;
+	}
+
 	public float getMediaPunti() {
 		return mediaPunti;
 	}
@@ -67,11 +88,14 @@ public class UtenteDTO {
 
 	@Override
 	public String toString() {
-		if(this.mediaPunti==0) {
-			return "nome=" + nome + ", cognome=" + cognome + ", email=" + email + ", ruolo=" + ruolo;
+		if(this.mediaPunti!=0) {
+			return "nome=" + nome + ", cognome=" + cognome + ", email=" + email + ", ruolo=" + ruolo+",Media="+this.mediaPunti;
+		}
+		else if(this.taskCompletati!=0) {
+			return "nome=" + nome + ", cognome=" + cognome + ", email=" + email + ", ruolo=" + ruolo+",Task completati="+this.taskCompletati;
 		}
 		else {
-			return "nome=" + nome + ", cognome=" + cognome + ", email=" + email + ", ruolo=" + ruolo+",media="+this.mediaPunti;
+			return "nome=" + nome + ", cognome=" + cognome + ", email=" + email + ", ruolo=" + ruolo;
 		}
 		
 	}

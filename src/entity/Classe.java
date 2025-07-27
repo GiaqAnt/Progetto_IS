@@ -11,6 +11,8 @@ import database.DaoStudente;
 import database.DaoTask;
 import dto.TaskDTO;
 import dto.UtenteDTO;
+import utilities.ComparatorStudentiPerTask;
+import utilities.ComparatorStudentiPerMedia;
 
 public class Classe {
 	private String nome;
@@ -103,12 +105,24 @@ public class Classe {
 		classeDB.iscrizioneDaDocente(email_studente);
 	}
 	
-	public ArrayList<UtenteDTO> getClassificaStudenti() throws ClassNotFoundException, SQLException {
+	public ArrayList<UtenteDTO> getClassificaStudentiMedia() throws ClassNotFoundException, SQLException {
 		ArrayList<UtenteDTO> lista_studenti_dto=new ArrayList<>();
-		Collections.sort(this.studenti,Collections.reverseOrder());
+		ComparatorStudentiPerMedia comparator =new ComparatorStudentiPerMedia();
+		this.studenti.sort(comparator);
 		for (int i=0;i<this.studenti.size();i++) {
 			System.out.println(this.studenti.get(i));
 			lista_studenti_dto.add(new UtenteDTO(studenti.get(i).getNome(),studenti.get(i).getCognome(),studenti.get(i).getEmail(),"Studente",studenti.get(i).calcolaMediaPunti()));
+		}
+		return lista_studenti_dto;
+	}
+	
+	public ArrayList<UtenteDTO> getClassificaStudentiTask() throws ClassNotFoundException, SQLException {
+		ArrayList<UtenteDTO> lista_studenti_dto=new ArrayList<>();
+		ComparatorStudentiPerTask comparator=new ComparatorStudentiPerTask();
+		this.studenti.sort(comparator);
+		for (int i=0;i<this.studenti.size();i++) {
+			lista_studenti_dto.add(new UtenteDTO(studenti.get(i).getNome(),studenti.get(i).getCognome(),studenti.get(i).getEmail(),"Studente",studenti.get(i).calcolaTaskCompletati()));
+			System.out.println(lista_studenti_dto.get(i).getTaskCompletati());
 		}
 		return lista_studenti_dto;
 	}

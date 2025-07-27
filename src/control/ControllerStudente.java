@@ -65,7 +65,7 @@ public class ControllerStudente {
 		}
 	}
 	
-	public ArrayList<UtenteDTO> getClassificaStudenti() throws DataBaseException{
+	public ArrayList<UtenteDTO> getClassificaStudentiMedia() throws DataBaseException{
 		ArrayList<UtenteDTO> lista_studenti_dto=new ArrayList<>();
 		Studente stud=(Studente)this.utenteCorrente;
 		Classe classe=stud.getClasse();
@@ -73,7 +73,22 @@ public class ControllerStudente {
 			classe.caricaStudentiDaDB();
 			for (Studente s: classe.getStudenti()) 
 				s.caricaSoluzioniDaDB();
-			lista_studenti_dto=classe.getClassificaStudenti();
+			lista_studenti_dto=classe.getClassificaStudentiMedia();
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new DataBaseException("Errore durante l'accesso al Database "+e);	
+		}
+		return lista_studenti_dto;
+	}
+	
+	public ArrayList<UtenteDTO> getClassificaStudentiTask() throws DataBaseException{
+		ArrayList<UtenteDTO> lista_studenti_dto=new ArrayList<>();
+		Studente stud=(Studente)this.utenteCorrente;
+		Classe classe=stud.getClasse();
+		try {
+			classe.caricaStudentiDaDB();
+			for (Studente s: classe.getStudenti()) 
+				s.caricaSoluzioniDaDB();
+			lista_studenti_dto=classe.getClassificaStudentiTask();
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new DataBaseException("Errore durante l'accesso al Database "+e);	
 		}

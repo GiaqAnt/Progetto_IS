@@ -260,6 +260,47 @@ public class BoundaryDocente extends JFrame {
 		});
 		buttonLogOutDocente.setBounds(213, 414, 85, 21);
 		homeDocente.add(buttonLogOutDocente);
+		JButton btnStudenti = new JButton("Visualizza lista studenti");
+		btnStudenti.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        ArrayList<UtenteDTO> listaStudenti = new ArrayList<>();
+		        try {
+		            listaStudenti = controller_u.getListaStudentiPiattaforma();
+		            DefaultListModel<UtenteDTO> model_2 = new DefaultListModel<>();
+		            for (UtenteDTO u : listaStudenti) {
+		                model_2.addElement(u);
+		            }
+
+		            JList<UtenteDTO> studentList = new JList<>(model_2);
+		            JScrollPane scrollPane = new JScrollPane(studentList);
+
+		            studentListPanel.removeAll();
+		            studentListPanel.add(scrollPane);
+
+		            JButton btnHome = new JButton("Torna alla home");
+		            classListPanel.add(btnHome);
+
+		            btnHome.addMouseListener(new MouseAdapter() {
+		                @Override
+		                public void mouseClicked(MouseEvent e) {
+		                    cardLayout.show(cardPanel, "start");
+		                    classListPanel.removeAll();
+		                }
+		            });
+
+		            cardLayout.show(cardPanel, "name_107895792965300");
+		            setVisible(true);
+		        } catch (DataBaseException e1) {
+		            JOptionPane.showMessageDialog(null, e1);
+		        } catch (NotFoundException e1) {
+		            JOptionPane.showMessageDialog(null, e1);
+		        }
+		    }
+		});
+
+		btnStudenti.setBounds(137, 128, 239, 23);
+		homeDocente.add(btnStudenti);
 		
 		
 		JPanel creaTask = new JPanel();

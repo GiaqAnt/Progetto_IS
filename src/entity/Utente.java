@@ -6,10 +6,10 @@ import database.DaoDocente;
 import database.DaoStudente;
 
 public class Utente {
-	private String nome;
-	private String cognome;
-	private String email;
-	private String ruolo;
+	protected String nome;
+	protected String cognome;
+	protected String email;
+	protected String ruolo;
 	
 	
 	public Utente(String nome, String cognome, String email, String ruolo) {

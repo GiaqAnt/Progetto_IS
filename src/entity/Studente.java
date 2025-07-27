@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class Studente extends Utente implements Comparable<Studente> {
+public class Studente extends Utente {
 	private Classe classe;
 	private ArrayList<Soluzione> soluzioni;
 	
@@ -65,13 +65,6 @@ public class Studente extends Utente implements Comparable<Studente> {
 			}
 		}
 	}
-	
-	
-	
-	@Override
-	public int compareTo(Studente o) {
-		return (int) (this.calcolaMediaPunti()-o.calcolaMediaPunti());
-	}
 
 	public void consegnaSoluzione(int idTask,byte[] contenuto,LocalDate data_consegna) throws ClassNotFoundException, SQLException {
 		Soluzione soluzione=new Soluzione(idTask,contenuto,data_consegna,this.getEmail());
@@ -90,7 +83,6 @@ public class Studente extends Utente implements Comparable<Studente> {
 	public float calcolaMediaPunti() {
 		int somma=0;
 		for (Soluzione s: this.soluzioni) {
-			System.out.println(this.getEmail()+s.getPunteggio());
 			somma+=s.getPunteggio();
 		}
 		if (!soluzioni.isEmpty())
@@ -99,5 +91,14 @@ public class Studente extends Utente implements Comparable<Studente> {
 			return 0;
 	}
 	
+	public int calcolaTaskCompletati() {
+		int conta=0;
+		for(Soluzione s: this.soluzioni) {
+			if(s.getPunteggio()!=0) {
+				conta++;
+			}
+		}
+		return conta;
+	}
 	
 }
