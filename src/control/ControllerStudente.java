@@ -43,7 +43,7 @@ public class ControllerStudente {
 		System.out.println(stud.getClasse());
 		Classe classe=stud.getClasse();
 		try {
-			classe.caricaTaskDaDB();
+			//classe.caricaTaskDaDB();
 			lista_task_dto=classe.getListaTask();
 			if(lista_task_dto.isEmpty()) {
 				throw new NotFoundException("Non ci sono task assegnati allo studente");
@@ -70,7 +70,7 @@ public class ControllerStudente {
 		Studente stud=(Studente)this.utenteCorrente;
 		Classe classe=stud.getClasse();
 		try {
-			classe.caricaStudentiDaDB();
+			//classe.caricaStudentiDaDB();
 			for (Studente s: classe.getStudenti()) 
 				s.caricaSoluzioniDaDB();
 			lista_studenti_dto=classe.getClassificaStudentiMedia();
@@ -85,7 +85,7 @@ public class ControllerStudente {
 		Studente stud=(Studente)this.utenteCorrente;
 		Classe classe=stud.getClasse();
 		try {
-			classe.caricaStudentiDaDB();
+			//classe.caricaStudentiDaDB();
 			for (Studente s: classe.getStudenti()) 
 				s.caricaSoluzioniDaDB();
 			lista_studenti_dto=classe.getClassificaStudentiTask();

@@ -97,6 +97,14 @@ public class DaoStudente {
 		return lista_studenti_temp;		
 	}
 	
+	public int updateDaoStudente(String emailStudente, String codiceClasse) throws ClassNotFoundException, SQLException {
+		int ret=0;
+		String query="UPDATE Studenti SET CLASSE_codiceClasse='"+codiceClasse+"'WHERE Email='"+emailStudente+"';";
+		System.out.println(query);
+		ret=DBConnectionManager.updateQuery(query);
+		return ret;
+	}
+	
 	public String getNome() {
 		return nome;
 	}

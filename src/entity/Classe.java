@@ -32,7 +32,7 @@ public class Classe {
 	public Classe(DaoClasse classeDB) throws ClassNotFoundException, SQLException {
 		this.codice=classeDB.getCodice();
 		this.nome=classeDB.getNome();
-		this.docente=new Docente(classeDB.getDocente());
+		//this.docente=new Docente(classeDB.getDocente());
 		this.tasks=new ArrayList<>();
 		this.studenti=new ArrayList<>();
 	}
@@ -41,18 +41,16 @@ public class Classe {
 		DaoClasse classeDB=new DaoClasse(codice);
 		this.codice=classeDB.getCodice();
 		this.nome=classeDB.getNome();
-		this.docente=new Docente(classeDB.getDocente());
 		this.tasks=new ArrayList<>();
 	}
 	
-	public void salvaInDB() throws ClassNotFoundException, SQLException {
+	/*public void salvaInDB() throws ClassNotFoundException, SQLException {
 		DaoClasse classeDB=new DaoClasse();
 		classeDB.setNome(nome);
 		classeDB.setCodice(codice);
 		DaoDocente docenteDB=new DaoDocente(this.docente.getEmail());
-		classeDB.setDocente(docenteDB);
 		classeDB.salvaInDB();
-	}
+	}*/
 	
 	
 	public void creaTask(String titolo, String descrizione,LocalDate data_pubblicazione, LocalDate data_scadenza,int punteggioMax) throws ClassNotFoundException, SQLException {
@@ -61,7 +59,7 @@ public class Classe {
 	}
 
 	
-	public void caricaTaskDaDB() throws ClassNotFoundException, SQLException {
+	/*public void caricaTaskDaDB() throws ClassNotFoundException, SQLException {
 		if(tasks.isEmpty()) {
 			DaoClasse classeDB=new DaoClasse(this.codice);
 			classeDB.caricaTaskDaDB();
@@ -71,9 +69,9 @@ public class Classe {
 				tasks.add(temp);
 			}
 		}
-	}
+	}*/
 	
-	public void caricaStudentiDaDB() throws ClassNotFoundException, SQLException {
+	/*public void caricaStudentiDaDB() throws ClassNotFoundException, SQLException {
 		if(studenti.isEmpty()) {
 			DaoClasse classeDB=new DaoClasse(this.codice);
 			classeDB.caricaStudentiDaDB();
@@ -83,7 +81,7 @@ public class Classe {
 				studenti.add(temp);
 			}
 		}
-	}
+	}*/
 	
 	public ArrayList<TaskDTO> getListaTask() throws ClassNotFoundException, SQLException{
 		ArrayList<TaskDTO> lista_task_dto=new ArrayList<>();
@@ -100,9 +98,9 @@ public class Classe {
 		return lista_task_dto;
 	}
 	
-	public void iscrizioneDaDocente(String email_studente) throws ClassNotFoundException, SQLException {
-		DaoClasse classeDB=new DaoClasse(this.codice);
-		classeDB.iscrizioneDaDocente(email_studente);
+	public void iscrizioneDaDocente(String emailStudente) throws ClassNotFoundException, SQLException {
+		DaoStudente studenteDB=new DaoStudente();
+		studenteDB.updateDaoStudente(emailStudente,this.codice);
 	}
 	
 	public ArrayList<UtenteDTO> getClassificaStudentiMedia() throws ClassNotFoundException, SQLException {

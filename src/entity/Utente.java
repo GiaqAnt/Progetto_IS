@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import database.DaoDocente;
 import database.DaoStudente;
 
-public class Utente {
+public abstract class Utente {
 	protected String nome;
 	protected String cognome;
 	protected String email;

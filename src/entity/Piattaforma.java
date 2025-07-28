@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class Piattaforma {
 	private static Piattaforma instance;
-	private static ArrayList<Utente> utenti; 
+	private ArrayList<Utente> utenti; 
 	
 	public Piattaforma() {
 		utenti=new ArrayList<>();
@@ -38,7 +38,7 @@ public class Piattaforma {
 			}
 		}
 		else {
-			throw new UtenteGiaRegistratoException("Questo utente è gi registrato");
+			throw new UtenteGiaRegistratoException("Questo utente è già registrato");
 		}
 	}
 	
@@ -48,14 +48,12 @@ public class Piattaforma {
 			ArrayList<DaoDocente> listaDocenti=docenteDB.getListaDocenti();
 			DaoStudente studenteDB=new DaoStudente();
 			ArrayList<DaoStudente> listaStudenti=studenteDB.getListaStudenti();
-			for(int i=0;i<listaDocenti.size();i++) {
-				Docente docente_temp=new Docente(listaDocenti.get(i));
-				docente_temp.setRuolo("Docente");
+			for(DaoDocente d: listaDocenti) {
+				Docente docente_temp=new Docente(d.getNome(),d.getCognome(),d.getEmail());
 				utenti.add(docente_temp);
 			}
-			for(int i=0;i<listaStudenti.size();i++) {
-				Studente studente_temp=new Studente(listaStudenti.get(i));
-				studente_temp.setRuolo("Studente");
+			for(DaoStudente s: listaStudenti) {
+				Studente studente_temp=new Studente(s.getNome(),s.getCognome(),s.getEmail());
 				utenti.add(studente_temp);
 			}
 		}
@@ -92,14 +90,9 @@ public class Piattaforma {
 	
 	public ArrayList<UtenteDTO> getListaStudentiPiattaforma() throws ClassNotFoundException, SQLException{
 		ArrayList<UtenteDTO> lista_studenti_dto=new ArrayList<>();
-		for(int i=0;i<utenti.size();i++) {
-			String nome=utenti.get(i).getNome();
-			String cognome=utenti.get(i).getCognome();
-			String email=utenti.get(i).getEmail();
-			String ruolo=utenti.get(i).getRuolo();
-			if(ruolo.equalsIgnoreCase("Studente")) {
-				lista_studenti_dto.add(new UtenteDTO(nome,cognome,email,ruolo));
-			}
+		for(Utente u: utenti) {
+			if(u.getRuolo().equalsIgnoreCase("Studente")) 
+				lista_studenti_dto.add(new UtenteDTO(u.getNome(),u.getCognome(),u.getEmail(),u.getRuolo()));
 		}
 		return lista_studenti_dto;
 	}
@@ -123,12 +116,12 @@ public class Piattaforma {
 			return null;
 	}
 
-	public static ArrayList<Utente> getUtenti() {
+	public  ArrayList<Utente> getUtenti() {
 		return utenti;
 	}
 
-	public static void setUtenti(ArrayList<Utente> utenti) {
-		Piattaforma.utenti = utenti;
+	public  void setUtenti(ArrayList<Utente> utenti) {
+		this.utenti = utenti;
 	}
 	
 }

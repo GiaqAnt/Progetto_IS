@@ -46,8 +46,9 @@ public class ControllerDocente {
 	}
 	
 	public void creaTask(String titolo, String descrizione, LocalDate data_pubblicazione, LocalDate data_scadenza, int punteggioMax, String codice_classe) throws DataBaseException {
+		Docente docente=(Docente) this.utenteCorrente;
 		try {
-			Classe classe=new Classe(codice_classe);
+			Classe classe=docente.getClasse(codice_classe);
 			classe.creaTask(titolo, descrizione,data_pubblicazione, data_scadenza, punteggioMax);
 		} 
 		catch (ClassNotFoundException | SQLException e) {
@@ -68,30 +69,25 @@ public class ControllerDocente {
 	public ArrayList<ClasseDTO> getListaClassi() throws DataBaseException, NotFoundException{
 		ArrayList<ClasseDTO> lista_classi_dto=new ArrayList<>();
 		Docente docente=(Docente) this.utenteCorrente;
-		System.out.println(docente.getEmail());
 		try {
 			docente.caricaClassiDaDB();
 			lista_classi_dto=docente.getListaClassiDTO();
-			if(lista_classi_dto.isEmpty()) {
-				throw new NotFoundException("Il docente non ha classi");
-			}
+			verificaNumeroClassi(lista_classi_dto);
 		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
 			throw new DataBaseException("Errore durante l'accesso al Database "+e);
 		}
 		return lista_classi_dto;
 	}
 	
-	public void iscrizioneDaDocente(String email, String codice_classe) throws StudenteGiaIscrittoException, DataBaseException {
+	public void iscrizioneDaDocente(String emailStudente, String codiceClasse) throws StudenteGiaIscrittoException, DataBaseException {
+		Docente docente=(Docente) this.utenteCorrente;
 		try {
 			piattaforma=Piattaforma.getInstance();
-			Classe classe=new Classe(codice_classe);
-			Studente stud=(Studente)piattaforma.getUtente(email);
-			if(stud.getClasse()!=null) {
-				throw new StudenteGiaIscrittoException("Lo studente è già iscritto a una classe");
-			}
-			else {
-				classe.iscrizioneDaDocente(email);
-			}
+			Classe classe=docente.getClasse(codiceClasse);
+			Studente stud=(Studente)piattaforma.getUtente(emailStudente);
+			verificaIscrizioneStudente(stud);
+			classe.iscrizioneDaDocente(emailStudente);
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new DataBaseException("Errore durante l'accesso al Database "+e);
 		} 
@@ -101,7 +97,7 @@ public class ControllerDocente {
 		ArrayList<TaskDTO> lista_task_dto=new ArrayList<>();
 		try {
 			Classe classe=new Classe(codice_classe);
-			classe.caricaTaskDaDB();
+			//classe.caricaTaskDaDB();
 			lista_task_dto=classe.getListaTask();
 			if(lista_task_dto.isEmpty()) {
 				throw new NotFoundException("Non ci sono task associati alla classe");
@@ -137,5 +133,17 @@ public class ControllerDocente {
 			throw new DataBaseException("Errore durante l'accesso al Database "+e);
 		}
 		return lista_soluzioni_dto;
+	}
+	
+	private void verificaNumeroClassi(ArrayList<ClasseDTO> lista_classi_dto) throws NotFoundException {
+		if(lista_classi_dto.isEmpty()) {
+			throw new NotFoundException("Il docente non ha classi");
+		}
+	}
+	
+	private void verificaIscrizioneStudente(Studente stud) throws StudenteGiaIscrittoException {
+		if(stud.getClasse()!=null) {
+			throw new StudenteGiaIscrittoException("Lo studente è già iscritto a una classe");
+		}
 	}
 }

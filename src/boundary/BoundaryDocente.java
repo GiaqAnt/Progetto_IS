@@ -198,7 +198,7 @@ public class BoundaryDocente extends JFrame {
 		btnIscrizione.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				mostraListaClassi(btnIscrizione);
+				mostraListaStudenti();
 			}
 		});
 		btnIscrizione.setBounds(137, 290, 239, 21);
@@ -419,6 +419,7 @@ public class BoundaryDocente extends JFrame {
 			}
 		} catch (DataBaseException e1) {
 			JOptionPane.showMessageDialog(null, e1);
+			e1.printStackTrace();
 		} catch (NotFoundException e1) {
 			JOptionPane.showMessageDialog(null, e1);
 		}
@@ -441,11 +442,7 @@ public class BoundaryDocente extends JFrame {
 					setVisible(true);
 					JScrollPane scrollPane = new JScrollPane(taskList);
 					taskListPanel.removeAll();
-					taskListPanel.add(scrollPane);
-					
-					
-					
-					
+					taskListPanel.add(scrollPane);					
 					JButton btnHome=new JButton("Torna alla home");
 					taskListPanel.add(btnHome);
 					
@@ -680,6 +677,7 @@ public class BoundaryDocente extends JFrame {
 					cardLayout.show(cardPanel, "start");
 				} catch (DataBaseException e1) {
 					JOptionPane.showMessageDialog(null, e1);
+					e1.printStackTrace();
 				} catch(IllegalArgumentException e1) {
 					JOptionPane.showMessageDialog(null, e1);
 				}

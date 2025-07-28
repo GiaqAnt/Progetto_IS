@@ -43,7 +43,7 @@ public class DBConnectionManager {
 		
 		Statement statment = conn.createStatement();
 		
-		ResultSet ret = statment.executeQuery(query); //"SELECT * from STUDENTI where .... "
+		ResultSet ret = statment.executeQuery(query); 
 		
 		
 		return ret;

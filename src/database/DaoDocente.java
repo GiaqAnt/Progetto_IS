@@ -9,26 +9,23 @@ public class DaoDocente {
 	private String nome;
 	private String cognome;
 	private String email;
-	private ArrayList<DaoClasse> classi;
+
 	
 	
 	public DaoDocente(String email)throws ClassNotFoundException, SQLException {
 		this.email=email;
-		classi=new ArrayList<>();
 		caricaDaDB();
 	}
 	
 	public DaoDocente() {
-		classi=new ArrayList<>();
 	}
 	
 	
 	
-	public DaoDocente(String nome, String cognome, String email, ArrayList<DaoClasse> classi) {
+	public DaoDocente(String nome, String cognome, String email) {
 		this.nome = nome;
 		this.cognome = cognome;
 		this.email = email;
-		this.classi = new ArrayList<>();
 	}
 
 	public void caricaDaDB() throws ClassNotFoundException, SQLException{
@@ -45,16 +42,16 @@ public class DaoDocente {
 		}
 	}
 	
-	public int salvaInDB(String email) throws ClassNotFoundException, SQLException {
+	public int salvaInDB() throws ClassNotFoundException, SQLException {
 		int ret=0;
-		String query = "INSERT INTO Docenti(Email,Nome,Cognome) VALUES ( \'"+email+"\','"+this.nome+"\','"+this.cognome+"')";
+		String query = "INSERT INTO Docenti(Email,Nome,Cognome) VALUES ( \'"+this.email+"\','"+this.nome+"\','"+this.cognome+"')";
 		System.out.println(query);
 		ret=DBConnectionManager.updateQuery(query);
 		return ret;
 	}
 	
 	
-	public void caricaClassiDaDB()throws ClassNotFoundException, SQLException {
+	/*public void caricaClassiDaDB()throws ClassNotFoundException, SQLException {
 		String query="SELECT * FROM Classi WHERE DOCENTE_emailDocente='"+this.email+"';";
 		ResultSet rs=DBConnectionManager.selectQuery(query);
 		while(rs.next()) {
@@ -64,7 +61,7 @@ public class DaoDocente {
 			classeDB.setDocente(this);
 			classi.add(classeDB);
 		}
-	}
+	}*/
 	
 	public ArrayList<DaoDocente> getListaDocenti() throws ClassNotFoundException, SQLException {
 		ArrayList<DaoDocente> lista_docenti_temp=new ArrayList<>();
@@ -100,14 +97,7 @@ public class DaoDocente {
 		this.email = email;
 	}
 
-	public ArrayList<DaoClasse> getListClassi() {
-		return classi;
-	}
-
-	public void setClassi(ArrayList<DaoClasse> classi) {
-		this.classi = classi;
-	}
-
+	
 	
 	
 	

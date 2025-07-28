@@ -8,28 +8,21 @@ import java.util.ArrayList;
 public class DaoClasse {
 	private String nome;
 	private String codice;
-	private DaoDocente docente;
-	private ArrayList<DaoStudente> studenti;
-	private ArrayList<DaoTask> tasks;
+
 	
 	public DaoClasse() {}
 	
 	public DaoClasse(String codice)throws ClassNotFoundException, SQLException  {
 		this.codice=codice;
-		this.studenti=new ArrayList<>();
-		this.tasks=new ArrayList<>();
 		caricaDaDB();
 	}
 	
 	
 	
 	
-	public DaoClasse(String nome, String codice, DaoDocente docente) {
+	public DaoClasse(String nome, String codice) {
 		this.nome = nome;
 		this.codice = codice;
-		this.docente = docente;
-		this.studenti = new ArrayList<>();
-		this.tasks = new ArrayList<>();
 	}
 
 	public void caricaDaDB() throws ClassNotFoundException, SQLException{
@@ -39,18 +32,17 @@ public class DaoClasse {
 		if (rs.next()) {
 			this.setNome(rs.getString("Nome"));
 			DaoDocente docenteDB=new DaoDocente(rs.getString("DOCENTE_emailDocente"));
-			this.setDocente(docenteDB);
 		}
 	}
 	
 	
-	public int salvaInDB() throws ClassNotFoundException, SQLException {
+	/*public int salvaInDB() throws ClassNotFoundException, SQLException {
 		int ret=0;
 		String query = "INSERT INTO Classi(Codice,Nome,DOCENTE_emailDocente) VALUES ( \'"+this.codice+"\',"+"\'"+this.nome+"\','"+this.docente.getEmail()+"')";
 		System.out.println(query);
 		ret=DBConnectionManager.updateQuery(query);
 		return ret;
-	}
+	}*/
 	
 	
 	public ArrayList<DaoClasse> getListaClassiDaDB() throws ClassNotFoundException, SQLException{ 
@@ -62,7 +54,17 @@ public class DaoClasse {
 			DaoClasse classe_temp=new DaoClasse();
 			classe_temp.setNome(rs.getString("Nome"));
 			classe_temp.setCodice(rs.getString("Codice"));
-			classe_temp.setDocente(docenteDB);
+			lista_classi_temp.add(classe_temp);
+		}
+		return lista_classi_temp;
+	}
+	
+	public ArrayList<DaoClasse> getListaClassiDocente(String emailDocente) throws ClassNotFoundException, SQLException{
+		ArrayList<DaoClasse> lista_classi_temp=new ArrayList<>();
+		String query="SELECT * FROM Classi WHERE DOCENTE_emailDocente='"+emailDocente+"';";
+		ResultSet rs=DBConnectionManager.selectQuery(query);
+		while(rs.next()) {
+			DaoClasse classe_temp=new DaoClasse(rs.getString("Nome"),rs.getString("Codice"));
 			lista_classi_temp.add(classe_temp);
 		}
 		return lista_classi_temp;
@@ -71,27 +73,7 @@ public class DaoClasse {
 	
 	
 	
-	public DaoDocente getDocente() {
-		return docente;
-	}
 
-
-
-	public void setDocente(DaoDocente docente) {
-		this.docente = docente;
-	}
-
-
-
-	public ArrayList<DaoStudente> getStudenti() {
-		return studenti;
-	}
-
-
-
-	public void setStudenti(ArrayList<DaoStudente> studenti) {
-		this.studenti = studenti;
-	}
 
 	
 
@@ -107,7 +89,6 @@ public class DaoClasse {
 			taskDB.setData_scadenza(rs.getDate("Data_scadenza").toLocalDate());
 			taskDB.setData_pubblicazione(rs.getDate("Data_pubblicazione").toLocalDate());
 			taskDB.setPunteggioMax(rs.getInt("Punteggio_massimo"));
-			tasks.add(taskDB);
 		}
 	}
 	
@@ -121,7 +102,6 @@ public class DaoClasse {
 			studenteDB.setNome(rs.getString("Nome"));
 			studenteDB.setCognome(rs.getString("Cognome"));
 			studenteDB.setClasse(this);
-			studenti.add(studenteDB);
 		}
 	}
 	
@@ -149,19 +129,8 @@ public class DaoClasse {
 			this.codice = codice;
 		}
 
-		public ArrayList<DaoTask> getTasks() {
-			return tasks;
-		}
-
-		public void setTasks(ArrayList<DaoTask> tasks) {
-			this.tasks = tasks;
-		}
-
-		@Override
-		public String toString() {
-			return "DaoClasse [nome=" + nome + ", codice=" + codice + ", docente=" + docente + ", studenti=" + studenti
-					+ ", tasks=" + tasks + "]";
-		}		
+		
+		
 		
 		
 }

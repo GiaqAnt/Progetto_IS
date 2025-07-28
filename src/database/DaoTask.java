@@ -56,7 +56,7 @@ public class DaoTask {
 	
 	public int salvaInDB(String codice_classe) throws ClassNotFoundException, SQLException {
 		int ret=0;
-		String query = "INSERT INTO Task(Id_task,Titolo,Descrizione,Data_pubblicazione,Data_scadenza,Punteggio_massimo,CLASSE_codiceClasse) VALUES ( \'"+this.idTask+"\','"+this.titolo+"\','"+this.descrizione+"\','"+Date.valueOf(this.data_pubblicazione)+"\','"+Date.valueOf(this.data_scadenza)+"\','"+this.punteggioMax+"\','"+codice_classe+"')";
+		String query = "INSERT INTO Task(Titolo,Descrizione,Data_pubblicazione,Data_scadenza,Punteggio_massimo,CLASSE_codiceClasse) VALUES ( \'"+this.titolo+"\','"+this.descrizione+"\','"+Date.valueOf(this.data_pubblicazione)+"\','"+Date.valueOf(this.data_scadenza)+"\','"+this.punteggioMax+"\','"+codice_classe+"')";
 		System.out.println(query);
 		ret=DBConnectionManager.updateQueryReturnGeneratedKey(query);
 		return ret;

@@ -26,25 +26,20 @@ public class Docente extends Utente {
 	}
 	
 	public void salvaInDB() throws ClassNotFoundException, SQLException {
-		DaoDocente docenteDB=new DaoDocente();
-		docenteDB.setNome(this.getNome());
-		docenteDB.setCognome(this.getCognome());
-		docenteDB.setEmail(this.getEmail());
-		docenteDB.salvaInDB(this.getEmail());
+		DaoDocente docenteDB=new DaoDocente(this.nome,this.cognome,this.email);
+		docenteDB.salvaInDB();
 	}
 
 	public void creaClasse(String nome, String codice) throws ClassNotFoundException, SQLException {
 		Classe classe=new Classe(nome,codice,this);
-		classe.salvaInDB();
+		//classe.salvaInDB();
 	}
 	
 	
 	public ArrayList<ClasseDTO> getListaClassiDTO() throws ClassNotFoundException, SQLException{
 		ArrayList<ClasseDTO> lista_dto=new ArrayList<>();
-		for (int i=0;i<classi.size();i++) {
-			String nome=classi.get(i).getNome();
-			String codice=classi.get(i).getCodice();
-			ClasseDTO temp=new ClasseDTO(nome,codice);
+		for (Classe c: classi) {
+			ClasseDTO temp=new ClasseDTO(c.getNome(),c.getCodice());
 			lista_dto.add(temp);
 		}
 		return lista_dto;
@@ -53,10 +48,10 @@ public class Docente extends Utente {
 	public void caricaClassiDaDB() throws ClassNotFoundException, SQLException{
 		if (classi.isEmpty()) {
 			DaoDocente docenteDB= new DaoDocente(this.getEmail());
-			docenteDB.caricaClassiDaDB();
-			ArrayList<DaoClasse> lista_classi_temp=docenteDB.getListClassi();
-			for(int i=0;i<lista_classi_temp.size();i++) {
-				Classe classe_temp=new Classe(lista_classi_temp.get(i));
+			DaoClasse classeDB=new DaoClasse();
+			ArrayList<DaoClasse> lista_classi_temp=classeDB.getListaClassiDocente(this.email);
+			for(DaoClasse c: lista_classi_temp) {
+				Classe classe_temp=new Classe(c.getNome(),c.getCodice(),this);
 				classi.add(classe_temp);
 			}
 		}
