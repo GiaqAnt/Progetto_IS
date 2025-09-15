@@ -1,9 +1,7 @@
 package control;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-import dto.UtenteDTO;
 import eccezioni.DataBaseException;
 import eccezioni.NotFoundException;
 import eccezioni.UtenteGiaRegistratoException;
@@ -35,10 +33,10 @@ public class ControllerUtente {
 	}
 
 
-	public void autenticazione(String email, String ruolo) throws DataBaseException, NotFoundException {
+	public void autenticazione(String email, String password,String ruolo) throws DataBaseException, NotFoundException {
 		Utente utente=null;
 		try {
-			utente = piattaforma.autenticazione(email,ruolo);
+			utente = piattaforma.autenticazione(email,password,ruolo);
 		} 
 		catch (ClassNotFoundException | SQLException e) {
 			throw new DataBaseException("Errore durante l'accesso al Database"+e);
@@ -57,27 +55,14 @@ public class ControllerUtente {
 	
 	
 	
-	public void registrazione(String nome, String cognome, String email, String ruolo) throws DataBaseException, UtenteGiaRegistratoException{
+	public void registrazione(String nome, String cognome, String email, String password, String ruolo) throws DataBaseException, UtenteGiaRegistratoException, IllegalArgumentException{
 		try {
-			piattaforma.registrazione(nome, cognome, email, ruolo);
+			piattaforma.CheckCredentials(email, password);
+			piattaforma.registrazione(nome, cognome, email,password, ruolo);
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new DataBaseException("Errore durante l'accesso al Database: "+e);
 		}
 	}
 	
-	public ArrayList<UtenteDTO> getListaStudentiPiattaforma() throws DataBaseException, NotFoundException{
-		ArrayList<UtenteDTO> lista_studenti_dto=new ArrayList<>();
-		try {
-			piattaforma.caricaUtentiDaDB();
-			lista_studenti_dto=piattaforma.getListaStudentiPiattaforma();
-			if(lista_studenti_dto.isEmpty()) {
-				throw new NotFoundException("Non ci sono studenti iscritti alla piattaforma");
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			throw new DataBaseException("Errore durante l'accesso al Database "+e);
-		}
-		return lista_studenti_dto;
-	}
 	
-
 }

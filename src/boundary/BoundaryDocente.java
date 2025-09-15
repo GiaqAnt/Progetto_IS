@@ -18,7 +18,6 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import control.ControllerDocente;
-import control.ControllerUtente;
 import dto.ClasseDTO;
 import dto.SoluzioneDTO;
 import dto.TaskDTO;
@@ -58,7 +57,6 @@ public class BoundaryDocente extends JFrame {
 	private JDatePickerImpl datePicker;
 	private JTextField textField;
 	private ControllerDocente controller_d;
-	private ControllerUtente controller_u;
 	private JPanel classListPanel;
 	private JPanel taskListPanel;
 	private JPanel studentListPanel;
@@ -67,6 +65,9 @@ public class BoundaryDocente extends JFrame {
 	private JButton downloadButton;
 	private JSpinner punteggio;
 	private JPanel assegnaPunteggio;
+	private JPanel creaTask;
+	private JButton taskButton;
+	private ClasseDTO classeSelezionata;
 	
 
 	/**
@@ -78,7 +79,6 @@ public class BoundaryDocente extends JFrame {
 	 * Create the frame.
 	 */
 	public BoundaryDocente() {
-		controller_u=ControllerUtente.getInstance();
 		controller_d=ControllerDocente.getInstance();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 616, 585);
@@ -155,16 +155,16 @@ public class BoundaryDocente extends JFrame {
 		btnTask.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				cardLayout.show(cardPanel, "Form Task");
+				mostraListaClassi(btnTask);
 			}
 		});
 		btnTask.setBounds(137, 194, 239, 21);
 		homeDocente.add(btnTask);
 		classListPanel = new JPanel();
-		cardPanel.add(classListPanel, "name_27970613667000");
+		cardPanel.add(classListPanel, "Lista classi");
 		
 		studentListPanel = new JPanel();
-		cardPanel.add(studentListPanel, "name_107895792965300");
+		cardPanel.add(studentListPanel, "Lista studenti");
 		
 		JButton btnListaClassi = new JButton("Visualizza lista classi");
 		btnListaClassi.addMouseListener(new MouseAdapter() {
@@ -176,7 +176,7 @@ public class BoundaryDocente extends JFrame {
 		
 		
 		taskListPanel = new JPanel();
-		cardPanel.add(taskListPanel, "name_110563351988700");
+		cardPanel.add(taskListPanel, "Lista task");
 		
 		
 		btnListaClassi.setBounds(137, 226, 239, 21);
@@ -198,7 +198,7 @@ public class BoundaryDocente extends JFrame {
 		btnIscrizione.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				mostraListaStudenti();
+				mostraListaStudentiPiattaforma(btnIscrizione);
 			}
 		});
 		btnIscrizione.setBounds(137, 290, 239, 21);
@@ -206,10 +206,10 @@ public class BoundaryDocente extends JFrame {
 		
 		
 		solutionListPanel = new JPanel();
-		cardPanel.add(solutionListPanel, "name_126229676612700");
+		cardPanel.add(solutionListPanel, "Lista soluzioni");
 		
 		assegnaPunteggio = new JPanel();
-		cardPanel.add(assegnaPunteggio, "name_131948141285199");
+		cardPanel.add(assegnaPunteggio, "Form punteggio");
 		
 		JLabel labelPunteggio = new JLabel("Inserisci il punteggio:");
 		labelPunteggio.setBounds(140, 273, 195, 13);
@@ -266,7 +266,7 @@ public class BoundaryDocente extends JFrame {
 		    public void mouseClicked(MouseEvent e) {
 		        ArrayList<UtenteDTO> listaStudenti = new ArrayList<>();
 		        try {
-		            listaStudenti = controller_u.getListaStudentiPiattaforma();
+		            listaStudenti = controller_d.getListaStudentiPiattaforma();
 		            DefaultListModel<UtenteDTO> model_2 = new DefaultListModel<>();
 		            for (UtenteDTO u : listaStudenti) {
 		                model_2.addElement(u);
@@ -279,7 +279,7 @@ public class BoundaryDocente extends JFrame {
 		            studentListPanel.add(scrollPane);
 
 		            JButton btnHome = new JButton("Torna alla home");
-		            classListPanel.add(btnHome);
+		            studentListPanel.add(btnHome);
 
 		            btnHome.addMouseListener(new MouseAdapter() {
 		                @Override
@@ -289,7 +289,7 @@ public class BoundaryDocente extends JFrame {
 		                }
 		            });
 
-		            cardLayout.show(cardPanel, "name_107895792965300");
+		            cardLayout.show(cardPanel, "Lista studenti");
 		            setVisible(true);
 		        } catch (DataBaseException e1) {
 		            JOptionPane.showMessageDialog(null, e1);
@@ -303,7 +303,7 @@ public class BoundaryDocente extends JFrame {
 		homeDocente.add(btnStudenti);
 		
 		
-		JPanel creaTask = new JPanel();
+		creaTask = new JPanel();
 		cardPanel.add(creaTask, "Form Task");
 		creaTask.setLayout(null);
 		
@@ -347,11 +347,11 @@ public class BoundaryDocente extends JFrame {
 		punteggio.setBounds(132, 295, 65, 25);
 		creaTask.add(punteggio);
 		
-		JButton taskButton = new JButton("Crea task");
+		taskButton = new JButton("Crea task");
 		taskButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				mostraListaClassi(taskButton);
+				creaTask(e,classeSelezionata);
 			}
 		});
 		taskButton.setBounds(132, 331, 192, 21);
@@ -392,7 +392,7 @@ public class BoundaryDocente extends JFrame {
 					classList.removeAll();
 				}
 			});
-			cardLayout.show(cardPanel,"name_27970613667000");
+			cardLayout.show(cardPanel,"Lista classi");
 			if(btn.getText().equalsIgnoreCase("Visualizza lista task") || btn.getText().equalsIgnoreCase("Correggi")) {
 				classList.addMouseListener(new MouseAdapter() {
 		    		@Override
@@ -401,22 +401,19 @@ public class BoundaryDocente extends JFrame {
 		    		}
 				});
 			}
-			else if(btn.getText().equalsIgnoreCase("Iscrivi uno studente")) {
-				classList.addMouseListener(new MouseAdapter() {
-		    		@Override
-		    		public void mouseClicked(MouseEvent e) {
-		    			mostraListaStudenti(e,classList);
-		    		}
-				});
-			}
 			else if(btn.getText().equalsIgnoreCase("Crea task")) {
 				classList.addMouseListener(new MouseAdapter() {
 		    		@Override
 		    		public void mouseClicked(MouseEvent e) {
-		    			creaTask(e,classList);
+		    			if(e.getClickCount()==2) {
+		    				classeSelezionata=classList.getSelectedValue();
+		    				cardLayout.show(cardPanel, "Form Task");
+		    			}
 		    		}
 				});
 			}
+			
+
 		} catch (DataBaseException e1) {
 			JOptionPane.showMessageDialog(null, e1);
 			e1.printStackTrace();
@@ -430,10 +427,10 @@ public class BoundaryDocente extends JFrame {
 			ClasseDTO selezionata=classList.getSelectedValue();
 			System.out.println(selezionata);
 			if(selezionata!=null) {
-				String codice_classe=selezionata.getCodice();
+				String codiceClasse=selezionata.getCodice();
 				ArrayList<TaskDTO> lista_task=new ArrayList<>();
 				try {
-					lista_task = controller_d.getListaTask(codice_classe);
+					lista_task = controller_d.getListaTask(codiceClasse);
 					DefaultListModel<TaskDTO> model_3=new DefaultListModel<>();
 					for (TaskDTO t: lista_task) {
 						model_3.addElement(t);
@@ -454,12 +451,12 @@ public class BoundaryDocente extends JFrame {
 						}
 					});
 					
-					cardLayout.show(cardPanel,"name_110563351988700");
+					cardLayout.show(cardPanel,"Lista task");
 					if(btn.getText().equalsIgnoreCase("Correggi")) {
 						taskList.addMouseListener(new MouseAdapter() {
 				    		@Override
 				    		public void mouseClicked(MouseEvent e) {
-				    			mostraListaSoluzioni(e,taskList);
+				    			mostraListaSoluzioni(e,taskList,codiceClasse);
 				    		}
 						});
 					}
@@ -474,14 +471,148 @@ public class BoundaryDocente extends JFrame {
 		}
 	}
 	
-	private void mostraListaStudenti(MouseEvent e, JList<ClasseDTO> classList) {
+	/*private void mostraListaStudentiPiattaforma(MouseEvent e, JList<ClasseDTO> classList, JButton btn) {
+	    if (e.getClickCount() == 2) {
+	        ClasseDTO selezionata = classList.getSelectedValue();
+	        if (selezionata != null) {
+	            String codiceClasse = selezionata.getCodice();
+	            ArrayList<UtenteDTO> listaStudenti = new ArrayList<>();
+	            try {
+	                listaStudenti = controller_u.getListaStudentiPiattaforma();
+	                DefaultListModel<UtenteDTO> model_2 = new DefaultListModel<>();
+	                for (UtenteDTO u : listaStudenti) {
+	                    model_2.addElement(u);
+	                }
+
+	                JList<UtenteDTO> studentList = new JList<>(model_2);
+	                JScrollPane scrollPane = new JScrollPane(studentList);
+
+	                studentListPanel.removeAll();
+	                studentListPanel.add(scrollPane);
+
+	                JButton btnHome = new JButton("Torna alla home");
+	                studentListPanel.add(btnHome);
+
+	                btnHome.addMouseListener(new MouseAdapter() {
+	                    @Override
+	                    public void mouseClicked(MouseEvent e) {
+	                        cardLayout.show(cardPanel, "start");
+	                        classListPanel.removeAll();
+	                    }
+	                });
+
+	                if (btn.getText().equalsIgnoreCase("Iscrivi uno studente")) {
+	                    studentList.addMouseListener(new MouseAdapter() {
+	                        @Override
+	                        public void mouseClicked(MouseEvent e) {
+	                            iscriviStudente(e, studentList, codiceClasse);
+	                        }
+	                    });
+	                } 
+
+	                cardLayout.show(cardPanel, "Lista studenti");
+	                setVisible(true);
+
+	            } catch (DataBaseException e1) {
+	                JOptionPane.showMessageDialog(null, e1);
+	            } catch (NotFoundException e1) {
+	                JOptionPane.showMessageDialog(null, e1);
+	            }
+	        } 
+	    }
+	}*/
+	
+	private void mostraListaStudentiPiattaforma(JButton btn) {
+        ArrayList<UtenteDTO> listaStudenti = new ArrayList<>();
+        try {
+            listaStudenti = controller_d.getListaStudentiPiattaforma();
+            DefaultListModel<UtenteDTO> model_2 = new DefaultListModel<>();
+            for (UtenteDTO u : listaStudenti) {
+                model_2.addElement(u);
+            }
+
+            JList<UtenteDTO> studentList = new JList<>(model_2);
+            JScrollPane scrollPane = new JScrollPane(studentList);
+
+            studentListPanel.removeAll();
+            studentListPanel.add(scrollPane);
+
+            JButton btnHome = new JButton("Torna alla home");
+            studentListPanel.add(btnHome);
+
+            btnHome.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    cardLayout.show(cardPanel, "start");
+                    classListPanel.removeAll();
+                }
+            });
+            if(btn.getText().equalsIgnoreCase("Iscrivi uno studente")) {
+            	studentList.addMouseListener(new MouseAdapter() {
+            		public void mouseClicked(MouseEvent e) {
+            			if(e.getClickCount()==2) {
+            				mostraListaClassiIscrizione(studentList);
+            			}
+            		}
+            	});
+            }
+            cardLayout.show(cardPanel, "Lista studenti");
+            setVisible(true);
+        } catch (DataBaseException e1) {
+            JOptionPane.showMessageDialog(null, e1);
+        } catch (NotFoundException e1) {
+            JOptionPane.showMessageDialog(null, e1);
+        }
+    } 
+
+	private void mostraListaClassiIscrizione(JList<UtenteDTO> studentList) {
+		ArrayList<ClasseDTO> listaClassi=new ArrayList<>();
+		try {
+			listaClassi = controller_d.getListaClassi();
+			DefaultListModel<ClasseDTO> model_1=new DefaultListModel<>();
+			for (ClasseDTO c: listaClassi) {
+				model_1.addElement(c);
+			}
+			JList<ClasseDTO> classList = new JList<>(model_1);
+			setVisible(true);
+			JScrollPane scrollPane = new JScrollPane(classList);
+			classListPanel.removeAll();
+			classListPanel.add(scrollPane);
+			
+			JButton btnHome=new JButton("Torna alla home");
+			classListPanel.add(btnHome);
+			
+			btnHome.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					cardLayout.show(cardPanel, "start");
+					classList.removeAll();
+				}
+			});
+			cardLayout.show(cardPanel,"Lista classi");
+			classList.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					iscriviStudente(e,studentList,classList.getSelectedValue().getCodice());
+				}
+			});
+			} catch (DataBaseException e1) {
+			JOptionPane.showMessageDialog(null, e1);
+			e1.printStackTrace();
+			} catch (NotFoundException e1) {
+				JOptionPane.showMessageDialog(null, e1);
+			}
+	}
+	
+		
+		
+	/*private void mostraListaStudentiClasse(MouseEvent e, JList<ClasseDTO> classList) {
 		if (e.getClickCount()==2) {
 			ClasseDTO selezionata=classList.getSelectedValue();
 			if(selezionata!=null) {
 				String codice_classe=selezionata.getCodice();
 				ArrayList<UtenteDTO> listaStudenti=new ArrayList<>();
 				try {
-					listaStudenti = controller_u.getListaStudentiPiattaforma();
+					listaStudenti = controller_d.getListaStudentiClasse(codice_classe);
 					DefaultListModel<UtenteDTO> model_2=new DefaultListModel<>();
 					for (UtenteDTO u: listaStudenti) {
 						model_2.addElement(u);
@@ -503,13 +634,7 @@ public class BoundaryDocente extends JFrame {
 						}
 					});
 					
-					cardLayout.show(cardPanel,"name_107895792965300");
-			        studentList.addMouseListener(new MouseAdapter() {
-		        		@Override
-		        		public void mouseClicked(MouseEvent e) {
-		        			iscriviStudente(e,studentList,codice_classe);
-		        		}
-			        });	
+					
 				} catch (DataBaseException e1) {
 					JOptionPane.showMessageDialog(null, e1);
 				} catch (NotFoundException e1) {
@@ -518,16 +643,15 @@ public class BoundaryDocente extends JFrame {
 			}
 		}
 	}
-	
-	private void mostraListaSoluzioni(MouseEvent e,JList<TaskDTO> taskList) {
+	*/
+	private void mostraListaSoluzioni(MouseEvent e,JList<TaskDTO> taskList,String codiceClasse) {
 		if (e.getClickCount()==2) {
 			TaskDTO selezionata=taskList.getSelectedValue();
-			System.out.println(selezionata);
+			int idTask=selezionata.getIdTask();
 			if(selezionata!=null) {
-				int id_task=selezionata.getIdTask();
 				ArrayList<SoluzioneDTO> listaSoluzioni=new ArrayList<>();
 				try {
-					listaSoluzioni=controller_d.getListaSoluzioni(id_task);
+					listaSoluzioni=controller_d.getListaSoluzioni(codiceClasse,idTask);
 					DefaultListModel<SoluzioneDTO> model_5=new DefaultListModel<>();
 					for (SoluzioneDTO s: listaSoluzioni) {
 						if(s.getPunteggio()==0)
@@ -550,11 +674,11 @@ public class BoundaryDocente extends JFrame {
 						}
 					});
 					
-					cardLayout.show(cardPanel, "name_126229676612700");
+					cardLayout.show(cardPanel, "Lista soluzioni");
 					solutionList.addMouseListener(new MouseAdapter() {
 					    @Override
 					    public void mouseClicked(MouseEvent e) {
-					        correggi(e,solutionList);
+					        correggi(e,solutionList,codiceClasse,idTask);
 					    }
 					});
 				} catch (DataBaseException e1) {
@@ -583,7 +707,7 @@ public class BoundaryDocente extends JFrame {
 		}
 	}
 	
-	private void correggi(MouseEvent e, JList<SoluzioneDTO> solutionList) {
+	private void correggi(MouseEvent e, JList<SoluzioneDTO> solutionList,String codiceClasse,int idTask) {
 	    if (e.getClickCount() == 2) {
 	        SoluzioneDTO selezionata = solutionList.getSelectedValue();
 	        if (selezionata != null) {
@@ -632,9 +756,19 @@ public class BoundaryDocente extends JFrame {
 	                    try {
 	                        int punteggio = Integer.parseInt(textField.getText());
 	                        try {
-								controller_d.assegnaPunteggio(idSoluzione, punteggio);				                            
-	                            JOptionPane.showMessageDialog(null, "Punteggio assegnato!");
-	    						cardLayout.show(cardPanel, "start");
+	                        	controller_d.assegnaPunteggio(codiceClasse,idTask,idSoluzione, punteggio);				                            
+	                        	JOptionPane.showMessageDialog(null, "Punteggio assegnato!");
+
+	                        	DefaultListModel<SoluzioneDTO> model = (DefaultListModel<SoluzioneDTO>) solutionList.getModel();
+	                        	model.removeElement(selezionata);
+
+	                        	if (!model.isEmpty()) {
+	                        	    cardLayout.show(cardPanel, "Lista soluzioni"); 
+	                        	} else {
+	                        	    JOptionPane.showMessageDialog(null, "Hai corretto tutte le soluzioni!");
+	                        	    cardLayout.show(cardPanel, "start");
+	                        	}
+
 							} catch (PunteggioTroppoAltoException e) {
 								JOptionPane.showMessageDialog(null, e);
 							}
@@ -643,44 +777,40 @@ public class BoundaryDocente extends JFrame {
 	                    }
 	                }
 	            });
-	            cardLayout.show(cardPanel, "name_131948141285199");
+	            cardLayout.show(cardPanel, "Form punteggio");
 	        }
 	    }
 	}
 	
-	private void creaTask(MouseEvent e, JList<ClasseDTO> classList) {
-		if (e.getClickCount()==2) {
-			ClasseDTO selezionata=classList.getSelectedValue();
-			if(selezionata!=null) {
-				String codice_classe=selezionata.getCodice();
-				String titolo=titoloField.getText();
-				String descrizione =descrizioneField.getText();
-				DateModel<?> model=datePicker.getModel();
-				int giorno=0;
-				int mese=0;
-				int anno=0;
-				if(model.getValue()!=null) {
-					giorno=model.getDay();
-					mese=model.getMonth()+1;
-					anno=model.getYear();
-				}
-				LocalDate data_scadenza=LocalDate.of(anno, mese, giorno);
-				LocalDate data_pubblicazione=LocalDate.now();
-				int punteggioMax=(int)punteggio.getValue();
-				try {
-					Validation.validateTaskTitle(titolo);
-					Validation.validateTaskDescription(descrizione);
-					Validation.validateDueDate(data_scadenza);
-					Validation.validateMaxScore(punteggio.getValue());
-					controller_d.creaTask(titolo, descrizione, data_pubblicazione, data_scadenza, punteggioMax, codice_classe);
-					JOptionPane.showMessageDialog(null,"Task creato correttamente");
-					cardLayout.show(cardPanel, "start");
-				} catch (DataBaseException e1) {
-					JOptionPane.showMessageDialog(null, e1);
-					e1.printStackTrace();
-				} catch(IllegalArgumentException e1) {
-					JOptionPane.showMessageDialog(null, e1);
-				}
+	private void creaTask(MouseEvent e, ClasseDTO selezionata) {
+		if(selezionata!=null) {
+			String codice_classe=selezionata.getCodice();
+			String titolo=titoloField.getText();
+			String descrizione =descrizioneField.getText();
+			DateModel<?> model=datePicker.getModel();
+			int giorno=0;
+			int mese=0;
+			int anno=0;
+			if(model.getValue()!=null) {
+				giorno=model.getDay();
+				mese=model.getMonth()+1;
+				anno=model.getYear();
+			}
+			LocalDate data_scadenza=LocalDate.of(anno, mese, giorno);
+			int punteggioMax=(int)punteggio.getValue();
+			try {
+				Validation.validateTaskTitle(titolo);
+				Validation.validateTaskDescription(descrizione);
+				Validation.validateDueDate(data_scadenza);
+				Validation.validateMaxScore(punteggio.getValue());
+				controller_d.creaTask(titolo, descrizione, data_scadenza, punteggioMax, codice_classe);
+				JOptionPane.showMessageDialog(null,"Task creato correttamente");
+				cardLayout.show(cardPanel, "start");
+			} catch (DataBaseException e1) {
+				JOptionPane.showMessageDialog(null, e1);
+				e1.printStackTrace();
+			} catch(IllegalArgumentException e1) {
+				JOptionPane.showMessageDialog(null, e1);
 			}
 		}
 	}

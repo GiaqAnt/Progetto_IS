@@ -20,19 +20,19 @@ public class Docente extends Utente {
 		this.classi=new ArrayList<>();
 	}
 	
-	public Docente(String nome, String cognome, String email) {
-		super(nome, cognome, email,"Docente");
+	public Docente(String nome, String cognome, String email, String password) {
+		super(nome, cognome, email,password,"Docente");
 		this.classi=new ArrayList<>();
 	}
 	
 	public void salvaInDB() throws ClassNotFoundException, SQLException {
-		DaoDocente docenteDB=new DaoDocente(this.nome,this.cognome,this.email);
+		DaoDocente docenteDB=new DaoDocente(this.nome,this.cognome,this.email,this.password);
 		docenteDB.salvaInDB();
 	}
 
 	public void creaClasse(String nome, String codice) throws ClassNotFoundException, SQLException {
 		Classe classe=new Classe(nome,codice,this);
-		//classe.salvaInDB();
+		classe.salvaInDB();
 	}
 	
 	
@@ -47,11 +47,10 @@ public class Docente extends Utente {
 	
 	public void caricaClassiDaDB() throws ClassNotFoundException, SQLException{
 		if (classi.isEmpty()) {
-			DaoDocente docenteDB= new DaoDocente(this.getEmail());
 			DaoClasse classeDB=new DaoClasse();
 			ArrayList<DaoClasse> lista_classi_temp=classeDB.getListaClassiDocente(this.email);
 			for(DaoClasse c: lista_classi_temp) {
-				Classe classe_temp=new Classe(c.getNome(),c.getCodice(),this);
+				Classe classe_temp=new Classe(c,this);
 				classi.add(classe_temp);
 			}
 		}

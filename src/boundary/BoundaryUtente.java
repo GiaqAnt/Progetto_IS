@@ -7,6 +7,7 @@ import eccezioni.DataBaseException;
 import eccezioni.NotFoundException;
 import eccezioni.UtenteGiaRegistratoException;
 import utilities.Validation;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,6 +22,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JPasswordField;
 
 public class BoundaryUtente extends JFrame {
 
@@ -32,6 +34,8 @@ public class BoundaryUtente extends JFrame {
 	private JTextField cognomeField;
 	private JTextField emailFieldAutenticazione;
 	private JTextField emailFieldRegistrazione;
+	private JPasswordField passwordFieldRegistrazione;
+	private JPasswordField passwordFieldAutenticazione;
 
 	/**
 	 * Launch the application.
@@ -70,25 +74,25 @@ public class BoundaryUtente extends JFrame {
 		setContentPane(cardPanel);
 		cardLayout.show(cardPanel,"Home");
 		nomeField = new JTextField();
-		nomeField.setBounds(113, 188, 260, 19);
+		nomeField.setBounds(113, 156, 260, 19);
 		nomeField.setColumns(10);
 		registrazione.add(nomeField);
 		
 		JLabel LableNome = new JLabel("Nome");
-		LableNome.setBounds(113, 174, 260, 13);
+		LableNome.setBounds(113, 141, 260, 13);
 		registrazione.add(LableNome);
 		
 		cognomeField = new JTextField();
-		cognomeField.setBounds(113, 259, 260, 19);
+		cognomeField.setBounds(113, 200, 260, 19);
 		cognomeField.setColumns(10);
 		registrazione.add(cognomeField);
 		
 		JLabel LableCognome = new JLabel("Cognome");
-		LableCognome.setBounds(113, 245, 260, 13);
+		LableCognome.setBounds(113, 186, 260, 13);
 		registrazione.add(LableCognome);
 		
 		emailFieldRegistrazione = new JTextField();
-		emailFieldRegistrazione.setBounds(113, 304, 260, 19);
+		emailFieldRegistrazione.setBounds(113, 248, 260, 19);
 		emailFieldRegistrazione.setColumns(10);
 		registrazione.add(emailFieldRegistrazione);
 		
@@ -97,13 +101,18 @@ public class BoundaryUtente extends JFrame {
 		registrazione.add(LabelRuolo);
 		
 		JLabel LabelEmailRegistrazione = new JLabel("Indirizzo e-mail");
-		LabelEmailRegistrazione.setBounds(113, 289, 260, 13);
+		LabelEmailRegistrazione.setBounds(113, 230, 260, 13);
 		registrazione.add(LabelEmailRegistrazione);
 		
 		JComboBox<String> comboBox = new JComboBox<>();
 		comboBox.setModel(new DefaultComboBoxModel<>(new String[] {"Docente", "Studente"}));
 		comboBox.setBounds(113, 348, 260, 45);
 		registrazione.add(comboBox);
+		
+		passwordFieldRegistrazione = new JPasswordField();
+		passwordFieldRegistrazione.setBounds(113, 291, 260, 20);
+		registrazione.add(passwordFieldRegistrazione);
+		
 		
 		JButton btnRegistrati = new JButton("Registrati");
 		btnRegistrati.addMouseListener(new MouseAdapter() {
@@ -112,6 +121,8 @@ public class BoundaryUtente extends JFrame {
 				String nome=nomeField.getText();
 				String cognome=cognomeField.getText();
 				String email=emailFieldRegistrazione.getText();
+				String password=BCrypt.hashpw(new String(passwordFieldRegistrazione.getPassword()), BCrypt.gensalt());
+				System.out.println(password);
 				String ruolo=(String)comboBox.getSelectedItem();
 				System.out.println(nome+" "+cognome+" "+email+" "+ruolo);
 				if(!nome.isEmpty()||!cognome.isEmpty()||!email.isEmpty()||!ruolo.isEmpty()) {
@@ -119,7 +130,8 @@ public class BoundaryUtente extends JFrame {
 						Validation.validateNome(nome);
 						Validation.validateCognome(cognome);
 						Validation.validateEmail(email);
-						controller.registrazione(nome, cognome, email, ruolo);
+						Validation.validatePassword(password);
+						controller.registrazione(nome, cognome, email,password,ruolo);
 						JOptionPane.showMessageDialog(null,"Registrazione avvenuta con successo");
 					} catch (DataBaseException e1) {
 						JOptionPane.showMessageDialog(null,e1);
@@ -146,8 +158,14 @@ public class BoundaryUtente extends JFrame {
 				cardLayout.show(cardPanel,"Home");
 			}
 		});
-		btnHome.setBounds(113, 218, 260, 21);
+		btnHome.setBounds(113, 479, 260, 21);
 		registrazione.add(btnHome);
+		
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setBounds(113, 280, 260, 13);
+		registrazione.add(lblPassword);
+		
+		
 		
 		
 		cardPanel.add(autenticazione,"Form autenticazione");
@@ -158,12 +176,12 @@ public class BoundaryUtente extends JFrame {
 		autenticazione.add(txtrInserireLidutentePer);
 		
 		emailFieldAutenticazione = new JTextField();
-		emailFieldAutenticazione.setBounds(162, 200, 177, 19);
+		emailFieldAutenticazione.setBounds(162, 158, 177, 19);
 		autenticazione.add(emailFieldAutenticazione);
 		emailFieldAutenticazione.setColumns(10);
 		
 		JLabel emailLabelAutenticazione = new JLabel("email");
-		emailLabelAutenticazione.setBounds(162, 187, 177, 13);
+		emailLabelAutenticazione.setBounds(162, 148, 177, 13);
 		autenticazione.add(emailLabelAutenticazione);
 		
 		JComboBox<String> comboBoxAutenticazione = new JComboBox<>();
@@ -171,17 +189,22 @@ public class BoundaryUtente extends JFrame {
 		comboBoxAutenticazione.setBounds(162, 246, 177, 21);
 		autenticazione.add(comboBoxAutenticazione);
 		
+		passwordFieldAutenticazione = new JPasswordField();
+		passwordFieldAutenticazione.setBounds(162, 199, 177, 20);
+		autenticazione.add(passwordFieldAutenticazione);
 		
 		JButton btnLogIn = new JButton("Log In");
 		btnLogIn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				String email=emailFieldAutenticazione.getText();
+				String password=new String(passwordFieldAutenticazione.getPassword());
 				String ruolo=(String) comboBoxAutenticazione.getSelectedItem();
 				System.out.println(ruolo);
 				try {
 					Validation.validateEmail(email);
-					controller.autenticazione(email, ruolo);
+					Validation.validatePassword(password);
+					controller.autenticazione(email, password,ruolo);
 					if(ruolo.equalsIgnoreCase("Studente")) {
 						BoundaryStudente stud=new BoundaryStudente();
 						stud.setVisible(true);
@@ -217,6 +240,12 @@ public class BoundaryUtente extends JFrame {
 		});
 		btnHome2.setBounds(176, 469, 151, 51);
 		autenticazione.add(btnHome2);
+		
+		JLabel lblPassword_1 = new JLabel("Password");
+		lblPassword_1.setBounds(162, 188, 177, 13);
+		autenticazione.add(lblPassword_1);
+		
+		
 		
 		
 		

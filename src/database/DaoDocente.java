@@ -9,6 +9,7 @@ public class DaoDocente {
 	private String nome;
 	private String cognome;
 	private String email;
+	private String password;
 
 	
 	
@@ -22,10 +23,11 @@ public class DaoDocente {
 	
 	
 	
-	public DaoDocente(String nome, String cognome, String email) {
+	public DaoDocente(String nome, String cognome, String email, String password) {
 		this.nome = nome;
 		this.cognome = cognome;
 		this.email = email;
+		this.password=password;
 	}
 
 	public void caricaDaDB() throws ClassNotFoundException, SQLException{
@@ -36,6 +38,7 @@ public class DaoDocente {
 			this.setNome(rs.getString("nome"));
 			this.setCognome(rs.getString("cognome"));
 			this.setEmail(rs.getString("email"));
+			this.setPassword(rs.getString("Password"));
 		}
 		else {
 			this.email=null;
@@ -44,24 +47,11 @@ public class DaoDocente {
 	
 	public int salvaInDB() throws ClassNotFoundException, SQLException {
 		int ret=0;
-		String query = "INSERT INTO Docenti(Email,Nome,Cognome) VALUES ( \'"+this.email+"\','"+this.nome+"\','"+this.cognome+"')";
+		String query = "INSERT INTO Docenti(Email,Nome,Cognome,Password) VALUES ( \'"+this.email+"\','"+this.nome+"\','"+this.cognome+"\','"+this.password+"')";
 		System.out.println(query);
 		ret=DBConnectionManager.updateQuery(query);
 		return ret;
 	}
-	
-	
-	/*public void caricaClassiDaDB()throws ClassNotFoundException, SQLException {
-		String query="SELECT * FROM Classi WHERE DOCENTE_emailDocente='"+this.email+"';";
-		ResultSet rs=DBConnectionManager.selectQuery(query);
-		while(rs.next()) {
-			DaoClasse classeDB=new DaoClasse();
-			classeDB.setCodice(rs.getString("Codice"));
-			classeDB.setNome(rs.getString("Nome"));
-			classeDB.setDocente(this);
-			classi.add(classeDB);
-		}
-	}*/
 	
 	public ArrayList<DaoDocente> getListaDocenti() throws ClassNotFoundException, SQLException {
 		ArrayList<DaoDocente> lista_docenti_temp=new ArrayList<>();
@@ -73,6 +63,7 @@ public class DaoDocente {
 			docente_temp.setNome(rs.getString("Nome"));
 			docente_temp.setCognome(rs.getString("Cognome"));
 			docente_temp.setEmail(rs.getString("Email"));
+			docente_temp.setPassword(rs.getString("Password"));
 			lista_docenti_temp.add(docente_temp);
 		}
 		return lista_docenti_temp;
@@ -95,6 +86,14 @@ public class DaoDocente {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	

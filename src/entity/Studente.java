@@ -12,27 +12,30 @@ public class Studente extends Utente {
 	private ArrayList<Soluzione> soluzioni;
 	
 	
+	public Studente(DaoStudente studenteDB, Classe classe) throws ClassNotFoundException, SQLException {
+		super(studenteDB);
+		this.classe=classe;
+		this.soluzioni=new ArrayList<>();
+	}
+	
 	public Studente(DaoStudente studenteDB) throws ClassNotFoundException, SQLException {
 		super(studenteDB);
-		if(studenteDB.getClasse()!=null)
-			this.classe=new Classe(studenteDB.getClasse());
-		else
-			this.classe=null;
 		this.soluzioni=new ArrayList<>();
 	}
 	
 	public Studente(String email) throws ClassNotFoundException, SQLException {
 		super(email,"Studente");
-		DaoStudente studenteDB=new DaoStudente(email);
-		if(studenteDB.getClasse()!=null)
-			this.classe=new Classe(studenteDB.getClasse());
-		else
-			this.classe=null;
 		this.soluzioni=new ArrayList<>();
 	}
 
-	public Studente(String nome, String cognome, String email) throws ClassNotFoundException, SQLException {
-		super(nome, cognome, email,"Studente");
+	public Studente(String nome, String cognome, String email, String password) throws ClassNotFoundException, SQLException {
+		super(nome, cognome, email,password,"Studente");
+		this.soluzioni=new ArrayList<>();
+	}
+	
+	public Studente(String nome, String cognome, String email, String password, Classe classe) throws ClassNotFoundException, SQLException {
+		super(nome, cognome, email,password,"Studente");
+		this.classe=classe;
 		this.soluzioni=new ArrayList<>();
 	}
 	
@@ -50,24 +53,34 @@ public class Studente extends Utente {
 		studenteDB.setNome(this.getNome());
 		studenteDB.setCognome(this.getCognome());
 		studenteDB.setEmail(this.getEmail());
-		studenteDB.salvaInDB(this.getEmail());
+		studenteDB.setPassword(this.password);
+		studenteDB.salvaInDB();
 	}
 
+	public void caricaClasseDaDB() throws ClassNotFoundException, SQLException {
+		DaoStudente studenteDB=new DaoStudente(this.nome,this.cognome,this.email,this.password);
+		String codiceClasse=studenteDB.getCodiceClasse();
+		if(codiceClasse==null)
+			this.classe=null;
+		else
+			this.classe=new Classe(codiceClasse);
+	}
+	
 	public void caricaSoluzioniDaDB() throws ClassNotFoundException, SQLException {
 		if(soluzioni.isEmpty()) {
+			DaoSoluzione soluzioneDB=new DaoSoluzione();
 			ArrayList<DaoSoluzione> lista_soluzioni_temp=new ArrayList<>();
-			DaoStudente studenteDB=new DaoStudente(this.getEmail());
-			studenteDB.caricaSoluzioniDaDB();
-			lista_soluzioni_temp=studenteDB.getSoluzioni();
-			for(int i=0;i<lista_soluzioni_temp.size();i++) {
-				Soluzione soluzione_temp=new Soluzione(lista_soluzioni_temp.get(i));
+			lista_soluzioni_temp=soluzioneDB.getSoluzioniStudente(this.email);
+			for(DaoSoluzione s: lista_soluzioni_temp) {
+				Task task=new Task(s.getIdTask());
+				Soluzione soluzione_temp=new Soluzione(task,s.getIdSoluzione(),s.getContenuto(),s.getPunteggio(),s.getData_consegna(),this);
 				soluzioni.add(soluzione_temp);
 			}
 		}
 	}
 
-	public void consegnaSoluzione(int idTask,byte[] contenuto,LocalDate data_consegna) throws ClassNotFoundException, SQLException {
-		Soluzione soluzione=new Soluzione(idTask,contenuto,data_consegna,this.getEmail());
+	public void consegnaSoluzione(Task task,byte[] contenuto,LocalDate dataConsegna) throws ClassNotFoundException, SQLException {
+		Soluzione soluzione=new Soluzione(task,contenuto,dataConsegna,this);
 		soluzione.salvaInDB();
 	}
 	
@@ -100,5 +113,22 @@ public class Studente extends Utente {
 		}
 		return conta;
 	}
+	
+	public int calcolaPunteggioTotale() {
+		int somma=0;
+		for(Soluzione s: this.soluzioni) {
+			somma+=s.getPunteggio();
+		}
+		return somma;
+	}
+
+	public ArrayList<Soluzione> getSoluzioni() {
+		return soluzioni;
+	}
+
+	public void setSoluzioni(ArrayList<Soluzione> soluzioni) {
+		this.soluzioni = soluzioni;
+	}
+	
 	
 }

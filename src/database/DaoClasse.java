@@ -16,10 +16,7 @@ public class DaoClasse {
 		this.codice=codice;
 		caricaDaDB();
 	}
-	
-	
-	
-	
+
 	public DaoClasse(String nome, String codice) {
 		this.nome = nome;
 		this.codice = codice;
@@ -30,19 +27,19 @@ public class DaoClasse {
 		System.out.println(query);
 		ResultSet rs=DBConnectionManager.selectQuery(query);
 		if (rs.next()) {
+			this.setCodice(rs.getString("Codice"));
 			this.setNome(rs.getString("Nome"));
-			DaoDocente docenteDB=new DaoDocente(rs.getString("DOCENTE_emailDocente"));
 		}
 	}
 	
 	
-	/*public int salvaInDB() throws ClassNotFoundException, SQLException {
+	public int salvaInDB(String emailDocente) throws ClassNotFoundException, SQLException {
 		int ret=0;
-		String query = "INSERT INTO Classi(Codice,Nome,DOCENTE_emailDocente) VALUES ( \'"+this.codice+"\',"+"\'"+this.nome+"\','"+this.docente.getEmail()+"')";
+		String query = "INSERT INTO Classi(Codice,Nome,DOCENTE_emailDocente) VALUES ( \'"+this.codice+"\',"+"\'"+this.nome+"\','"+emailDocente+"')";
 		System.out.println(query);
 		ret=DBConnectionManager.updateQuery(query);
 		return ret;
-	}*/
+	}
 	
 	
 	public ArrayList<DaoClasse> getListaClassiDaDB() throws ClassNotFoundException, SQLException{ 
@@ -50,7 +47,6 @@ public class DaoClasse {
 		String query="SELECT * FROM Classi;";
 		ResultSet rs=DBConnectionManager.selectQuery(query);
 		while(rs.next()) {
-			DaoDocente docenteDB=new DaoDocente(rs.getString("DOCENTE_emailDocente"));
 			DaoClasse classe_temp=new DaoClasse();
 			classe_temp.setNome(rs.getString("Nome"));
 			classe_temp.setCodice(rs.getString("Codice"));
@@ -70,48 +66,31 @@ public class DaoClasse {
 		return lista_classi_temp;
 	}
 	
-	
-	
-	
-
-
-	
-
-	public void caricaTaskDaDB() throws ClassNotFoundException, SQLException {
-		String query="SELECT * FROM Task WHERE CLASSE_codiceClasse='"+this.codice+"';";
+	public DaoClasse getClasseStudente(String emailStudente) throws ClassNotFoundException, SQLException {
+		DaoClasse classeDB=null;
+		String query="SELECT c.codice,c.nome FROM Studenti s JOIN Classi c on s.CLASSE_codiceClasse=c.Codice WHERE Email='"+emailStudente+"';";
 		System.out.println(query);
 		ResultSet rs=DBConnectionManager.selectQuery(query);
-		while(rs.next()) {
-			DaoTask taskDB=new DaoTask();
-			taskDB.setIdTask(rs.getInt("Id_task"));
-			taskDB.setTitolo(rs.getString("Titolo"));
-			taskDB.setDescrizione(rs.getString("Descrizione"));
-			taskDB.setData_scadenza(rs.getDate("Data_scadenza").toLocalDate());
-			taskDB.setData_pubblicazione(rs.getDate("Data_pubblicazione").toLocalDate());
-			taskDB.setPunteggioMax(rs.getInt("Punteggio_massimo"));
+		if(rs.next()) {
+			String codice=rs.getString("codice");
+			String nome=rs.getString("nome");
+			classeDB=new DaoClasse(codice,nome);
 		}
+		return classeDB;
 	}
 	
-	public void caricaStudentiDaDB() throws ClassNotFoundException, SQLException{
-		String query="SELECT * FROM Studenti WHERE CLASSE_codiceClasse='"+this.codice+"';";
+	public String getEmailDocente() throws ClassNotFoundException, SQLException {
+		String email=null;
+		String query="SELECT * FROM Classi WHERE Codice='"+this.codice+"';";
 		System.out.println(query);
 		ResultSet rs=DBConnectionManager.selectQuery(query);
-		while(rs.next()) {
-			DaoStudente studenteDB=new DaoStudente();
-			studenteDB.setEmail(rs.getString("Email"));
-			studenteDB.setNome(rs.getString("Nome"));
-			studenteDB.setCognome(rs.getString("Cognome"));
-			studenteDB.setClasse(this);
+		if(rs.next()) {
+			email=rs.getString("DOCENTE_emailDocente");
 		}
+		return email;
 	}
 	
-	public int iscrizioneDaDocente(String email_studente) throws ClassNotFoundException, SQLException {
-		int ret=0;
-		String query="UPDATE Studenti SET CLASSE_codiceClasse='"+this.codice+"'WHERE Email='"+email_studente+"';";
-		System.out.println(query);
-		ret=DBConnectionManager.updateQuery(query);
-		return ret;
-	}
+	
 	
 		public String getNome() {
 			return nome;

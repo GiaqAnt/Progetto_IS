@@ -9,13 +9,15 @@ public abstract class Utente {
 	protected String nome;
 	protected String cognome;
 	protected String email;
+	protected String password;
 	protected String ruolo;
 	
 	
-	public Utente(String nome, String cognome, String email, String ruolo) {
+	public Utente(String nome, String cognome, String email, String password, String ruolo) {
 		this.nome = nome;
 		this.cognome = cognome;
 		this.email = email;
+		this.password=password;
 		this.ruolo=ruolo;
 	}
 	
@@ -23,12 +25,14 @@ public abstract class Utente {
 		this.nome=docenteDB.getNome();
 		this.cognome=docenteDB.getCognome();
 		this.email=docenteDB.getEmail();
+		this.ruolo="Docente";
 	}
 	
 	public Utente(DaoStudente studenteDB) {
 		this.nome=studenteDB.getNome();
 		this.cognome=studenteDB.getCognome();
 		this.email=studenteDB.getEmail();
+		this.ruolo="Studente";
 	}
 	
 	public Utente(String email, String ruolo) throws ClassNotFoundException, SQLException {
@@ -38,29 +42,15 @@ public abstract class Utente {
 			this.email=docenteDB.getEmail();
 			this.nome=docenteDB.getNome();
 			this.cognome=docenteDB.getCognome();
+			this.password=docenteDB.getPassword();
 		}
 		else {
 			DaoStudente studenteDB=new DaoStudente(email);
 			this.email=studenteDB.getEmail();
 			this.nome=studenteDB.getNome();
 			this.cognome=studenteDB.getCognome();
+			this.password=studenteDB.getPassword();
 		}
-	}
-
-	public void caricaDaDB() throws ClassNotFoundException, SQLException {
-		if(this.ruolo.equalsIgnoreCase("Docente"))  {
-			DaoDocente docenteDB=new DaoDocente(this.email);
-			this.nome=docenteDB.getNome();
-			this.cognome=docenteDB.getCognome();
-			this.email=docenteDB.getEmail();
-		}
-		else {
-			DaoStudente studenteDB=new DaoStudente(this.email);
-			this.nome=studenteDB.getNome();
-			this.cognome=studenteDB.getCognome();
-			this.email=studenteDB.getEmail();
-		}
-		
 	}
 	
 	public String getNome() {
@@ -93,6 +83,16 @@ public abstract class Utente {
 
 	public void setRuolo(String ruolo) {
 		this.ruolo = ruolo;
+	}
+
+	
+	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override

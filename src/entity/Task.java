@@ -12,29 +12,43 @@ public class Task {
 	private int idTask;
 	private String titolo;
 	private String descrizione;
-	private LocalDate data_pubblicazione;
-	private LocalDate data_scadenza;
+	private LocalDate dataPubblicazione;
+	private LocalDate dataScadenza;
 	private int punteggioMax;
 	private ArrayList<Soluzione> soluzioni;
+	private Classe classe;
 	
 	
-	public Task(String titolo, String descrizione,LocalDate data_pubblicazione, LocalDate data_scadenza, int punteggioMax) {
+	public Task(String titolo, String descrizione,LocalDate data_pubblicazione, LocalDate data_scadenza, int punteggioMax,Classe classe) {
 		this.titolo = titolo;
 		this.descrizione = descrizione;
-		this.data_pubblicazione=data_pubblicazione;
-		this.data_scadenza = data_scadenza;
+		this.dataPubblicazione=data_pubblicazione;
+		this.dataScadenza = data_scadenza;
 		this.punteggioMax = punteggioMax;
+		this.soluzioni=new ArrayList<>();
+		this.classe=classe;
+	}
+	
+	public Task(int idTask,String titolo, String descrizione,LocalDate data_pubblicazione, LocalDate data_scadenza, int punteggioMax,Classe classe) {
+		this.idTask=idTask;
+		this.titolo = titolo;
+		this.descrizione = descrizione;
+		this.dataPubblicazione=data_pubblicazione;
+		this.dataScadenza = data_scadenza;
+		this.punteggioMax = punteggioMax;
+		this.classe=classe;
 		this.soluzioni=new ArrayList<>();
 	}
 	
-	public Task(DaoTask taskDB) throws ClassNotFoundException, SQLException {
+	public Task(DaoTask taskDB,Classe classe) throws ClassNotFoundException, SQLException {
 		this.idTask=taskDB.getIdTask();
 		this.titolo=taskDB.getTitolo();
 		this.descrizione=taskDB.getDescrizione();
-		this.data_pubblicazione=taskDB.getData_pubblicazione();
-		this.data_scadenza=taskDB.getData_scadenza();
+		this.dataPubblicazione=taskDB.getData_pubblicazione();
+		this.dataScadenza=taskDB.getData_scadenza();
 		this.punteggioMax=taskDB.getPunteggioMax();
 		this.soluzioni=new ArrayList<>();
+		this.classe=classe;
 	}
 	
 	public Task(int idTask) throws ClassNotFoundException, SQLException {
@@ -42,48 +56,61 @@ public class Task {
 		this.idTask=taskDB.getIdTask();
 		this.titolo=taskDB.getTitolo();
 		this.descrizione=taskDB.getDescrizione();
-		this.data_pubblicazione=taskDB.getData_pubblicazione();
-		this.data_scadenza=taskDB.getData_scadenza();
+		this.dataPubblicazione=taskDB.getData_pubblicazione();
+		this.dataScadenza=taskDB.getData_scadenza();
 		this.punteggioMax=taskDB.getPunteggioMax();
 		this.soluzioni=new ArrayList<>();
 		
 	}
 	
-	public void SalvaInDB(String codiceClasse) throws ClassNotFoundException, SQLException {
-		DaoTask taskDB=new DaoTask();
-		taskDB.setTitolo(titolo);
-		taskDB.setDescrizione(descrizione);
-		taskDB.setData_pubblicazione(data_pubblicazione);
-		taskDB.setData_scadenza(data_scadenza);
-		taskDB.setPunteggioMax(punteggioMax);
-		taskDB.salvaInDB(codiceClasse);
+	public void salvaInDB() throws ClassNotFoundException, SQLException {
+		DaoTask taskDB=new DaoTask(titolo,descrizione,dataPubblicazione,dataScadenza,punteggioMax);
+		taskDB.salvaInDB(this.classe.getCodice());
 	}
 	
 	public void caricaSoluzioniDaDB() throws ClassNotFoundException, SQLException{
+		ArrayList<DaoSoluzione> listaSoluzioni=new ArrayList<>();
 		if(soluzioni.isEmpty()) {
-			DaoTask taskDB=new DaoTask(this.idTask);
-			taskDB.caricaSoluzioniDaDB();
-			ArrayList<DaoSoluzione> lista_soluzioni_temp=taskDB.getSoluzioni();
-			for(int i=0;i<lista_soluzioni_temp.size();i++) {
-				Soluzione temp=new Soluzione(lista_soluzioni_temp.get(i));
+			DaoSoluzione soluzioneDB=new DaoSoluzione();
+			listaSoluzioni=soluzioneDB.getListaSoluzioniTask(idTask);
+			for(DaoSoluzione s: listaSoluzioni) {
+				Studente stud=new Studente(s.getEmailStudente());
+				Soluzione temp=new Soluzione(this,s.getIdSoluzione(),s.getContenuto(),s.getPunteggio(),s.getData_consegna(),stud);
 				soluzioni.add(temp);
 			}
 		}
 	}
 
-	public ArrayList<SoluzioneDTO> getListaSoluzioni(){
+	
+	public void caricaClasseDaDB() throws ClassNotFoundException, SQLException {
+		DaoTask taskDB=new DaoTask(this.idTask,this.titolo,this.descrizione,this.dataScadenza,this.dataPubblicazione,this.punteggioMax);
+		this.classe=new Classe(taskDB.getCodiceClasse());
+	}
+	
+	public ArrayList<SoluzioneDTO> getListaSoluzioniDTO(){
 		ArrayList<SoluzioneDTO> lista_soluzioni_dto=new ArrayList<>();
-		for(int i=0;i<soluzioni.size();i++) {
-			int idSoluzione=soluzioni.get(i).getIdSoluzione();
-			byte[] contenuto=soluzioni.get(i).getContenuto();
-			int punteggio=soluzioni.get(i).getPunteggio();
-			LocalDate data_consegna=soluzioni.get(i).getData_consegna();
-			if(punteggio==0) {
-				SoluzioneDTO temp=new SoluzioneDTO(idSoluzione,contenuto,punteggio,data_consegna,soluzioni.get(i).getStudente().getEmail(),this.punteggioMax);
+		for(Soluzione s: soluzioni) {
+			if(s.getPunteggio()==0) {
+				SoluzioneDTO temp=new SoluzioneDTO(s.getIdSoluzione(),s.getContenuto(),s.getPunteggio(),s.getData_consegna(),s.getStudente().getEmail(),s.getTask().getIdTask());
 				lista_soluzioni_dto.add(temp);
 			}
 		}
 		return lista_soluzioni_dto;
+	}
+	
+	public Soluzione getSoluzione(int idSoluzione) {
+		int i=0;
+		boolean trovato=false;
+		Soluzione temp=null;
+		while(i<soluzioni.size() && !trovato) {
+			if(soluzioni.get(i).getIdSoluzione()==idSoluzione) {
+				trovato=true;
+				temp=soluzioni.get(i);
+			}
+			else
+				i++;
+		}
+		return temp;
 	}
 	
 	public String getTitolo() {
@@ -103,19 +130,19 @@ public class Task {
 	}
 
 	public LocalDate getData_pubblicazione() {
-		return data_pubblicazione;
+		return dataPubblicazione;
 	}
 
 	public void setData_pubblicazione(LocalDate data_pubblicazione) {
-		this.data_pubblicazione = data_pubblicazione;
+		this.dataPubblicazione = data_pubblicazione;
 	}
 
 	public LocalDate getData_scadenza() {
-		return data_scadenza;
+		return dataScadenza;
 	}
 
 	public void setData_scadenza(LocalDate data_scadenza) {
-		this.data_scadenza = data_scadenza;
+		this.dataScadenza = data_scadenza;
 	}
 
 	public int getPunteggioMax() {
@@ -141,6 +168,9 @@ public class Task {
 	public void setIdTask(int idTask) {
 		this.idTask = idTask;
 	}
+
+	
+	
 	
 	
 }

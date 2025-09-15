@@ -44,6 +44,32 @@ public class Validation {
             throw new IllegalArgumentException("Il formato dell'email non è valido.");
         }
     }
+    
+    public static void validatePassword(String password) {
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("La password non può essere nulla o vuota.");
+        }
+
+        if (password.length() < 8) {
+            throw new IllegalArgumentException("La password deve essere lunga almeno 8 caratteri.");
+        }
+
+        if (!Pattern.compile(".*\\d.*").matcher(password).matches()) {
+            throw new IllegalArgumentException("La password deve contenere almeno una cifra.");
+        }
+
+        if (!Pattern.compile(".*[A-Z].*").matcher(password).matches()) {
+            throw new IllegalArgumentException("La password deve contenere almeno una lettera maiuscola.");
+        }
+
+        if (!Pattern.compile(".*[a-z].*").matcher(password).matches()) {
+            throw new IllegalArgumentException("La password deve contenere almeno una lettera minuscola.");
+        }
+
+        if (!Pattern.compile(".*[@#$%^&+=].*").matcher(password).matches()) {
+            throw new IllegalArgumentException("La password deve contenere almeno un carattere speciale (@, #, $, %, ^, &, +, =).");
+        }
+    }
 
     // Validazione Nome Classe
     public static void validateClassName(String name) {

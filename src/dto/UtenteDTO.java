@@ -35,7 +35,15 @@ public class UtenteDTO {
 		this.taskCompletati=taskCompletati;
 	}
 	
-
+	public UtenteDTO(String nome, String cognome, String email, String ruolo,int taskCompletati) {
+		this.nome =nome;
+		this.cognome = cognome;
+		this.email = email;
+		this.ruolo=ruolo;
+		this.mediaPunti=0;
+		this.taskCompletati=taskCompletati;
+	}
+	
 	public String getNome() {
 		return nome;
 	}

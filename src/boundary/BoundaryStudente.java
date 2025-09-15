@@ -4,6 +4,7 @@ package boundary;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -22,7 +23,9 @@ import javax.swing.JFileChooser;
 
 import dto.TaskDTO;
 import dto.UtenteDTO;
+import eccezioni.ConsegnaInRitardoException;
 import eccezioni.DataBaseException;
+import eccezioni.GiaConsegnatoException;
 import eccezioni.NotFoundException;
 
 import java.io.File;
@@ -32,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.JTextPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class BoundaryStudente extends JFrame {
 
@@ -40,6 +44,7 @@ public class BoundaryStudente extends JFrame {
 	private CardLayout cardLayout;
 	private JPanel cardPanel;
 	private JTable tableStudenti;
+	private JTextField codiceField;
 
 	/**
 	 * Launch the application.
@@ -125,6 +130,12 @@ public class BoundaryStudente extends JFrame {
 										JOptionPane.showMessageDialog(null, "Soluzione consegnata");
 									} catch (IOException | DataBaseException e1) {
 										JOptionPane.showMessageDialog(null, e1);;
+									} catch (ConsegnaInRitardoException e1) {
+										JOptionPane.showMessageDialog(null, e1);
+										e1.printStackTrace();
+									} catch (GiaConsegnatoException e1) {
+										JOptionPane.showMessageDialog(null, e1);
+										e1.printStackTrace();
 									}
 	        					}
 	        				}
@@ -214,14 +225,48 @@ public class BoundaryStudente extends JFrame {
 		homeStudente.add(btnLogOut);
 		
 		JButton btnMedia = new JButton("Visualizza media");
+		btnMedia.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					JOptionPane.showMessageDialog(null, "La tua media: "+controller_s.getMedia());
+				} catch (HeadlessException | DataBaseException e1) {
+					JOptionPane.showMessageDialog(null, e1);
+					e1.printStackTrace();
+				}
+			}
+		});
 		btnMedia.setBounds(163, 201, 202, 31);
 		homeStudente.add(btnMedia);
 		
 		JButton btnPunteggio = new JButton("Visualizza punteggio totale");
+		btnPunteggio.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					JOptionPane.showMessageDialog(null,"Punteggio totale: "+controller_s.getPunteggioTotale());
+				} catch (HeadlessException | DataBaseException e1) {
+					JOptionPane.showMessageDialog(null, e1);
+					e1.printStackTrace();
+				}
+			}
+		});
 		btnPunteggio.setBounds(163, 243, 202, 31);
 		homeStudente.add(btnPunteggio);
 		
+		JPanel panelIscrizione = new JPanel();
+		cardPanel.add(panelIscrizione, "Form iscrizione");
+		panelIscrizione.setLayout(null);
+		
+		
+		
 		JButton btnIscrizione = new JButton("Iscriviti");
+		btnIscrizione.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				cardLayout.show(cardPanel, "Form iscrizione");
+			}
+		});
 		btnIscrizione.setBounds(163, 285, 202, 31);
 		homeStudente.add(btnIscrizione);
 		
@@ -253,7 +298,6 @@ public class BoundaryStudente extends JFrame {
 		                dati[i][3] = u.getMediaPunti();
 		            }
 
-		            @SuppressWarnings("serial")
 		            DefaultTableModel model = new DefaultTableModel(dati, colonne_media) {
 		                @Override
 		                public boolean isCellEditable(int row, int column) {
@@ -310,7 +354,6 @@ public class BoundaryStudente extends JFrame {
 		                dati[i][3] = u.getTaskCompletati();
 		            }
 
-		            @SuppressWarnings("serial")
 		            DefaultTableModel model = new DefaultTableModel(dati, colonne_task) {
 		                @Override
 		                public boolean isCellEditable(int row, int column) {
@@ -350,6 +393,35 @@ public class BoundaryStudente extends JFrame {
 
 		btnClassificaTask.setBounds(127, 274, 282, 53);
 		panelClassifica.add(btnClassificaTask);
+		
+		
+		
+		codiceField = new JTextField();
+		codiceField.setBounds(150, 169, 164, 43);
+		panelIscrizione.add(codiceField);
+		codiceField.setColumns(10);
+		
+		JTextArea txtrInserireIlCodice = new JTextArea();
+		txtrInserireIlCodice.setText("Inserire il codice della classe");
+		txtrInserireIlCodice.setBounds(105, 11, 261, 22);
+		panelIscrizione.add(txtrInserireIlCodice);
+		
+		JButton iscrizioneBtn = new JButton("Iscriviti");
+		iscrizioneBtn.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String codiceClasse=codiceField.getText();
+				try {
+					controller_s.iscrizioneDaStudente(codiceClasse);
+					JOptionPane.showMessageDialog(null,"Iscrizione avvenuta con successo");
+				} catch (DataBaseException e1) {
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, e1);
+				}
+			}
+		});
+		iscrizioneBtn.setBounds(333, 348, 89, 23);
+		panelIscrizione.add(iscrizioneBtn);
 		
 
 	}
